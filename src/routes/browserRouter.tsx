@@ -17,6 +17,9 @@ const fallbackElement = <ProgressBar />;
 const Dashboard = loadable(() => import('../components/dashboard'), {
   fallback: fallbackElement,
 });
+const Predict = loadable(() => import('../components/predict'), {
+  fallback: fallbackElement,
+});
 const Users = loadable(() => import('../components/users'), {
   fallback: fallbackElement,
 });
@@ -52,6 +55,10 @@ export const browserRouter = createBrowserRouter([
       {
         path: webRoutes.dashboard,
         element: <Dashboard />,
+      },
+      {
+        path: webRoutes.predict,
+        element: <Predict />,
       },
       {
         path: webRoutes.users,

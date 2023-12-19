@@ -50,7 +50,7 @@ const Login = () => {
   return (
     <Fragment>
       <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl text-left text-opacity-30 tracking-wide">
-        Admin Login
+        Login
       </h1>
       <Form
         className="space-y-4 md:space-y-6"
