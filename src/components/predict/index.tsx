@@ -1,11 +1,11 @@
-import { BreadcrumbProps } from 'antd';
-import { UploadOutlined } from '@ant-design/icons';
+import { BreadcrumbProps, Button, Spin, Upload, Image, UploadFile } from 'antd';
 import { Link } from 'react-router-dom';
 import { webRoutes } from '../../routes/web';
 import BasePageContainer from '../layout/PageContainer';
 import React, { useState } from 'react';
-import { Upload, Button, message } from 'antd';
+import { predict, store } from '../../api/predict';
 import './index.css';
+
 const breadcrumb: BreadcrumbProps = {
   items: [
     {
@@ -20,38 +20,105 @@ const breadcrumb: BreadcrumbProps = {
 };
 
 const Predict = () => {
-  const [fileList, setFileList] = useState([]);
-
-  const beforeUpload = (file: any) => {
-    const isImage = file.type.startsWith('image/');
-    if (!isImage) {
-      message.error('You can only upload image files!');
+  const [file, setFile] = useState<File | null>(null);
+  const [result, setResult] = useState<{
+    disease: string;
+    confidence: string;
+  } | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [imageUploaded, setImageUploaded] = useState<boolean>(false);
+  const handleFileChange = (files: UploadFile<any>[]) => {
+    if (files && files.length > 0) {
+      setFile(files[0].originFileObj as File);
+      setImageUploaded(true);
     }
-    return isImage;
   };
 
-  const handleChange = (info: any) => {
-    if (info.file.status === 'done') {
-      message.success(`${info.file.name} file uploaded successfully`);
-    } else if (info.file.status === 'error') {
-      message.error(`${info.file.name} file upload failed.`);
+  const handlePredict = async () => {
+    setLoading(true);
+    try {
+      if (file) {
+        const predictionResult = await predict(file);
+        setResult(predictionResult);
+
+        // Gửi dữ liệu đến API MongoDB
+        const data = {
+          image: file as Blob,
+          disease: predictionResult.disease,
+          confidence: predictionResult.confidence,
+          time: new Date().toISOString(),
+          username: 'username', // Thay đổi 'username' này thành tên người dùng thực tế
+        };
+
+        const storeResponse = await store(data);
+        console.log(storeResponse.status);
+      }
+    } catch (error) {
+      console.error('An error occurred during prediction:', error);
+    } finally {
+      setLoading(false);
     }
-    setFileList(info.fileList);
   };
 
+  const handleClear = () => {
+    setFile(null);
+    setImageUploaded(false);
+  };
   return (
     <BasePageContainer breadcrumb={breadcrumb}>
-      <Upload
-        className="custom-upload"
-        action="/api/upload" // Replace with your actual upload API endpoint
-        listType="picture-card"
-        fileList={fileList}
-        beforeUpload={beforeUpload}
-        onChange={handleChange}
-        style={{ width: '300px', height: '300px' }}
-      >
-        <Button icon={<UploadOutlined />}>Click to upload</Button>
-      </Upload>
+      <div>
+        <h1>Skin Cancer Detection</h1>
+        <Upload
+          accept=".png,.jpg,.jpeg"
+          showUploadList={false}
+          beforeUpload={() => false}
+          onChange={(info) => handleFileChange(info.fileList)}
+        >
+          <Button>Select Image</Button>
+        </Upload>
+
+        {imageUploaded ? (
+          <div>
+            <Image
+              src={file ? URL.createObjectURL(file) : ''}
+              alt={file?.name || ''}
+              width={200}
+            />
+          </div>
+        ) : (
+          <div
+            style={{
+              border: '1px dashed #ccc',
+              padding: '10px',
+              width: '200px',
+              height: '200px',
+            }}
+          >
+            <p>Select an Image</p>
+          </div>
+        )}
+        <div style={{ display: 'flex' }}>
+          <Button type="primary" onClick={handlePredict} loading={loading}>
+            Predict
+          </Button>
+          <Button type="primary" onClick={handleClear} loading={loading}>
+            Clear
+          </Button>
+        </div>
+        {loading && <Spin />}
+
+        {result && file && (
+          <div>
+            <h2>Results</h2>
+            <div style={{ display: 'flex' }}>
+              <div>
+                <p>Prediction: {result.disease}</p>
+                <p>Confidence: {result.confidence}</p>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
     </BasePageContainer>
   );
 };

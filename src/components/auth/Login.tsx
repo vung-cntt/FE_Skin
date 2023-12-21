@@ -49,7 +49,10 @@ const Login = () => {
       setLoading(false);
     }
   };
-
+  const handleSignUp = () => {
+    // Chuyển hướng đến trang Sign Up khi nhấn nút "Sign Up"
+    navigate(webRoutes.signup);
+  };
   return (
     <Fragment>
       <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl text-left text-opacity-30 tracking-wide">
@@ -124,6 +127,17 @@ const Login = () => {
             htmlType={'submit'}
           >
             Login
+          </Button>
+
+          <Button
+            className="mt-4 bg-primary"
+            block
+            onClick={handleSignUp}
+            type="primary"
+            size="large"
+            htmlType={'submit'}
+          >
+            Sign Up
           </Button>
         </div>
       </Form>
