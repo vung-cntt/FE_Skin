@@ -13,6 +13,7 @@
     "prettier:fix": "prettier --write \"./**/*.{js,jsx,ts,tsx,css,md,json}\""
   },
   "dependencies": {
+    "bcryptjs": "^2.4.3",
     "dotenv": "^16.3.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
@@ -21,6 +22,7 @@
     "@ant-design/pro-components": "^2.6.4",
     "@loadable/component": "^5.15.3",
     "@reduxjs/toolkit": "^1.9.5",
+    "@types/bcryptjs": "^2.4.6",
     "@types/loadable__component": "^5.13.4",
     "@types/nprogress": "^0.2.0",
     "@types/react": "^18.2.14",

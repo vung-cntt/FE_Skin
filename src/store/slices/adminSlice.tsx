@@ -19,9 +19,14 @@ export const adminSlice = createSlice({
 
       return state;
     },
+    signp: (state) => {
+      state = null;
+
+      return state;
+    },
   },
 });
 
-export const { login, logout } = adminSlice.actions;
+export const { login, logout, signp } = adminSlice.actions;
 
 export default adminSlice.reducer;

@@ -5,7 +5,7 @@ import { webRoutes } from '../../routes/web';
 import BasePageContainer from '../layout/PageContainer';
 import React, { useState } from 'react';
 import { Upload, Button, message } from 'antd';
-
+import './index.css';
 const breadcrumb: BreadcrumbProps = {
   items: [
     {
@@ -42,11 +42,13 @@ const Predict = () => {
   return (
     <BasePageContainer breadcrumb={breadcrumb}>
       <Upload
+        className="custom-upload"
         action="/api/upload" // Replace with your actual upload API endpoint
         listType="picture-card"
         fileList={fileList}
         beforeUpload={beforeUpload}
         onChange={handleChange}
+        style={{ width: '300px', height: '300px' }}
       >
         <Button icon={<UploadOutlined />}>Click to upload</Button>
       </Upload>

@@ -10,7 +10,7 @@ import ProgressBar from '../components/loader/progressBar';
 import RequireAuth from './requireAuth';
 import Login from '../components/auth/Login';
 import About from '../components/demo-pages/about';
-
+import SingUp from '../components/auth/SignUp';
 const errorElement = <ErrorPage />;
 const fallbackElement = <ProgressBar />;
 
@@ -39,6 +39,10 @@ export const browserRouter = createBrowserRouter([
       {
         path: webRoutes.login,
         element: <Login />,
+      },
+      {
+        path: webRoutes.signup,
+        element: <SingUp />,
       },
     ],
   },
