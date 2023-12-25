@@ -30,13 +30,17 @@ const Predict = () => {
   const [loading, setLoading] = useState<boolean>(false);
   // const [imageUploaded, setImageUploaded] = useState<boolean>(false);
   const [username, setUsername] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchUserInfo = async () => {
       try {
         const userInfo = await getUserInfo();
         setUsername(userInfo.user_name);
-        localStorage.setItem('username', userInfo.user_name); // Lưu username vào localStorage
+        setUserId(userInfo.idUser);
+        localStorage.setItem('username', userInfo.user_name);
+        localStorage.setItem('uid', userInfo.idUser);
+        // Lưu username vào localStorage
       } catch (error) {
         console.error('An error occurred while fetching user info:', error);
       }
@@ -44,12 +48,14 @@ const Predict = () => {
 
     // Lấy username từ localStorage khi component được render
     const savedUsername = localStorage.getItem('username');
-    if (savedUsername) {
+    const savedUserId = localStorage.getItem('uid');
+    if (savedUsername && savedUserId) {
       setUsername(savedUsername);
+      setUserId(savedUserId);
     } else {
       fetchUserInfo();
     }
-  }, [username]);
+  }, [username, userId]);
 
   const handleImageUpload = (e: any) => {
     const file = e.target.files ? e.target.files[0] : null;
@@ -86,6 +92,7 @@ const Predict = () => {
           disease: predictionResult.disease,
           confidence: predictionResult.confidence,
           time: new Date().toISOString(),
+          userId: userId,
           username: username, // Thay đổi 'username' này thành tên người dùng thực tế
         };
 
