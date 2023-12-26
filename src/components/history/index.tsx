@@ -29,6 +29,7 @@ const breadcrumb: BreadcrumbProps = {
 };
 const History = () => {
   // Cập nhật state để sử dụng kiểu Prediction[]
+  const [pagesData, setPagesData] = useState<Record<number, Prediction[]>>({});
   const [predictionPage, setPredictionPage] = useState<PredictionPage>({
     data: [], // Mảng của Prediction
     total_records: 0,
@@ -38,7 +39,9 @@ const History = () => {
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
+  useEffect(() => {
+    fetchPageData(1, predictionPage.page_size);
+  }, []);
   useEffect(() => {
     const page = 1;
     const page_size = 10;
@@ -53,24 +56,70 @@ const History = () => {
         setLoading(false);
       });
   }, []);
-  const handleTableChange = (pagination: TablePaginationConfig) => {
+  const fetchPageData = (page: number, pageSize: number) => {
     setLoading(true);
 
+    // Nếu dữ liệu cho trang hiện tại đã có sẵn, sử dụng dữ liệu đó và tránh gọi API
+    if (pagesData[page]) {
+      setPredictionPage((prev) => ({
+        ...prev,
+        data: pagesData[page],
+        current_page: page,
+        page_size: pageSize,
+      }));
+      setLoading(false);
+    } else {
+      // Nếu không, tải dữ liệu mới từ API
+      getPredictionsByUserId(page, pageSize)
+        .then((data) => {
+          setPagesData((prevPagesData) => ({
+            ...prevPagesData,
+            [page]: data.data,
+          }));
+          setPredictionPage(data);
+          setLoading(false);
+        })
+        .catch((error) => {
+          console.error('An error occurred while fetching predictions:', error);
+          setError('An error occurred while fetching predictions.');
+          setLoading(false);
+        });
+    }
+  };
+
+  const handleTableChange = (pagination: TablePaginationConfig) => {
     // Set default values for current page and page size in case they are undefined
     const currentPage = pagination.current || 1;
     const pageSize = pagination.pageSize || 10;
 
-    getPredictionsByUserId(currentPage, pageSize)
-      .then((data) => {
-        setPredictionPage(data);
-        setLoading(false);
-      })
-      .catch((error) => {
-        console.error('An error occurred while fetching predictions:', error);
-        setError('Failed to fetch predictions.');
-        setLoading(false);
-      });
+    // Kiểm tra xem dữ liệu cho trang hiện tại đã có sẵn trong pagesData chưa
+    if (pagesData[currentPage]) {
+      setPredictionPage((prev) => ({
+        ...prev,
+        data: pagesData[currentPage],
+        current_page: currentPage,
+        page_size: pageSize,
+      }));
+    } else {
+      // Nếu không, gọi API để tải dữ liệu
+      getPredictionsByUserId(currentPage, pageSize)
+        .then((data) => {
+          setPagesData((prevPagesData) => ({
+            ...prevPagesData,
+            [currentPage]: data.data,
+          }));
+          setPredictionPage(data);
+        })
+        .catch((error) => {
+          console.error('An error occurred while fetching predictions:', error);
+          setError('Failed to fetch predictions.');
+        })
+        .finally(() => {
+          setLoading(false);
+        });
+    }
   };
+
   const handleDelete = (id: number) => {
     // Thêm kiểu dữ liệu cho id
     // Logic để xóa prediction dựa trên id
