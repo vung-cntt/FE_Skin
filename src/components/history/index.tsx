@@ -1,6 +1,6 @@
 // PredictionsView.tsx
 import React, { useState, useEffect } from 'react';
-import { getPredictionsByUserId } from '../../api/history';
+import { getPredictionsByUserId, deletePrediction } from '../../api/history';
 import { PredictionPage, Prediction } from '../../interfaces/models/getpredict';
 import { BreadcrumbProps } from 'antd';
 import BasePageContainer from '../layout/PageContainer';
@@ -120,11 +120,30 @@ const History = () => {
     }
   };
 
-  const handleDelete = (id: number) => {
-    // Thêm kiểu dữ liệu cho id
-    // Logic để xóa prediction dựa trên id
-    console.log('Deleting prediction with id:', id);
-    message.success('Prediction deleted successfully');
+  const handleDelete = async (id: number) => {
+    const result = await deletePrediction(id);
+    if (!result.error) {
+      message.success('Prediction deleted successfully');
+      // Cập nhật lại pagesData và predictionPage để loại bỏ item đã xóa
+      setPagesData((prevPagesData) => {
+        const updatedPagesData = { ...prevPagesData };
+        Object.keys(updatedPagesData).forEach((pageKey) => {
+          const page = Number(pageKey);
+          updatedPagesData[page] = updatedPagesData[page].filter(
+            (prediction: { id: number }) => prediction.id !== id
+          );
+        });
+        return updatedPagesData;
+      });
+      setPredictionPage((prev) => ({
+        ...prev,
+        data: prev.data.filter((prediction) => prediction.id !== id),
+        total_records: prev.total_records - 1,
+      }));
+    } else {
+      console.error('Error deleting prediction:', result.error);
+      message.error('Failed to delete prediction: ' + result.error);
+    }
   };
 
   const handleView = (id: number) => {
