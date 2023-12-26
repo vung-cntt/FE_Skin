@@ -16,6 +16,7 @@ export const auth = async (username: string, password: string) => {
     }
 
     const data = await response.json();
+    localStorage.setItem('refreshToken', data.refresh_token);
     return data;
   } catch (error) {
     // Handle errors here
@@ -45,5 +46,32 @@ export const signup = async (
     }
   } catch (error) {
     console.error('An error occurred during signup:', error);
+  }
+};
+
+export const refreshToken = async (): Promise<string> => {
+  try {
+    // Lấy refresh_token từ localStorage
+    const refreshToken = localStorage.getItem('refreshToken');
+    if (!refreshToken) {
+      throw new Error('No refresh token available');
+    }
+
+    const response = await axios.post(
+      `${API_BASE_URL}/token/refresh`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${refreshToken}`,
+        },
+      }
+    );
+
+    // Lưu access_token mới vào localStorage nếu bạn muốn
+    localStorage.setItem('accessToken', response.data.access_token);
+
+    return response.data.access_token;
+  } catch (error) {
+    throw new Error('Unable to refresh token');
   }
 };
