@@ -7,3 +7,10 @@ export interface Prediction {
   userId: string;
   username: string;
 }
+export interface PredictionPage {
+  data: Prediction[];
+  total_records: number;
+  total_pages: number;
+  current_page: number;
+  page_size: number;
+}

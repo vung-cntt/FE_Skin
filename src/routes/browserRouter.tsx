@@ -11,6 +11,7 @@ import RequireAuth from './requireAuth';
 import Login from '../components/auth/Login';
 import About from '../components/demo-pages/about';
 import SingUp from '../components/auth/SignUp';
+
 const errorElement = <ErrorPage />;
 const fallbackElement = <ProgressBar />;
 
@@ -20,7 +21,7 @@ const Dashboard = loadable(() => import('../components/dashboard'), {
 const Predict = loadable(() => import('../components/predict'), {
   fallback: fallbackElement,
 });
-const Users = loadable(() => import('../components/users'), {
+const History = loadable(() => import('../components/history'), {
   fallback: fallbackElement,
 });
 
@@ -65,8 +66,8 @@ export const browserRouter = createBrowserRouter([
         element: <Predict />,
       },
       {
-        path: webRoutes.users,
-        element: <Users />,
+        path: webRoutes.history,
+        element: <History />,
       },
       {
         path: webRoutes.about,

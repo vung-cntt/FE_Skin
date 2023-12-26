@@ -4,7 +4,7 @@ export const webRoutes = {
   signup: '/signup',
   logout: '/logout',
   dashboard: '/dashboard',
-  users: '/users',
+  history: '/history',
   about: '/about',
   predict: '/predict',
 };

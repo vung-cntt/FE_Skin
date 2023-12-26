@@ -1,9 +1,9 @@
 import { webRoutes } from '../../routes/web';
 import { BiHomeAlt2 } from 'react-icons/bi';
 import Icon, {
-  UserOutlined,
   InfoCircleOutlined,
   ScanOutlined,
+  HistoryOutlined,
 } from '@ant-design/icons';
 
 export const sidebar = [
@@ -20,10 +20,10 @@ export const sidebar = [
     icon: <ScanOutlined />,
   },
   {
-    path: webRoutes.users,
-    key: webRoutes.users,
-    name: 'Users',
-    icon: <UserOutlined />,
+    path: webRoutes.history,
+    key: webRoutes.history,
+    name: 'History',
+    icon: <HistoryOutlined />,
   },
   {
     path: webRoutes.about,
