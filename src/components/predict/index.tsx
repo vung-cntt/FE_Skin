@@ -80,24 +80,34 @@ const Predict = () => {
     setLoading(true);
     try {
       if (file) {
+        // Đảm bảo rằng file là một instance của Blob
+        const imageBlob = new Blob([file], { type: file.type });
+
         const formData = new FormData();
-        formData.append('file', file); // Thêm file vào formData
+        formData.append('file', imageBlob, file.name); // Thêm Blob vào formData
 
         const predictionResult = await predict(formData); // Gửi formData đến API
         setResult(predictionResult);
 
-        // Gửi dữ liệu đến API MongoDB
-        const data = {
-          image: file as Blob,
-          disease: predictionResult.disease,
-          confidence: predictionResult.confidence,
-          time: new Date().toISOString(),
-          userId: userId,
-          username: username, // Thay đổi 'username' này thành tên người dùng thực tế
-        };
+        // Chuyển đổi Blob sang định dạng Base64 hoặc sử dụng một định dạng khác nếu cần
+        const reader = new FileReader();
+        reader.readAsDataURL(imageBlob);
+        reader.onloadend = async () => {
+          const base64data = reader.result;
 
-        const storeResponse = await store(data);
-        console.log(storeResponse.status);
+          // Gửi dữ liệu đến API MongoDB
+          const data = {
+            image: base64data, // Lưu trữ ảnh dưới dạng Base64
+            disease: predictionResult.disease,
+            confidence: predictionResult.confidence,
+            time: new Date().toISOString(),
+            userId: userId,
+            username: username, // Thay đổi 'username' này thành tên người dùng thực tế
+          };
+
+          const storeResponse = await store(data);
+          console.log(storeResponse.status);
+        };
       }
     } catch (error) {
       console.error('An error occurred during prediction:', error);
