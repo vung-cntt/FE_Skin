@@ -14,6 +14,8 @@ import {
   message,
   TablePaginationConfig,
 } from 'antd';
+import { format } from 'date-fns';
+import labels from './fitler';
 
 const breadcrumb: BreadcrumbProps = {
   items: [
@@ -29,10 +31,9 @@ const breadcrumb: BreadcrumbProps = {
 };
 const History = () => {
   const navigate = useNavigate();
-  // Cập nhật state để sử dụng kiểu Prediction[]
   const [pagesData, setPagesData] = useState<Record<number, Prediction[]>>({});
   const [predictionPage, setPredictionPage] = useState<PredictionPage>({
-    data: [], // Mảng của Prediction
+    data: [],
     total_records: 0,
     total_pages: 0,
     current_page: 1,
@@ -40,6 +41,7 @@ const History = () => {
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
   useEffect(() => {
     fetchPageData(1, predictionPage.page_size);
   }, []);
@@ -57,9 +59,9 @@ const History = () => {
         setLoading(false);
       });
   }, []);
+
   const fetchPageData = (page: number, pageSize: number) => {
     setLoading(true);
-
     // Nếu dữ liệu cho trang hiện tại đã có sẵn, sử dụng dữ liệu đó và tránh gọi API
     if (pagesData[page]) {
       setPredictionPage((prev) => ({
@@ -70,7 +72,6 @@ const History = () => {
       }));
       setLoading(false);
     } else {
-      // Nếu không, tải dữ liệu mới từ API
       getPredictionsByUserId(page, pageSize)
         .then((data) => {
           setPagesData((prevPagesData) => ({
@@ -102,7 +103,6 @@ const History = () => {
         page_size: pageSize,
       }));
     } else {
-      // Nếu không, gọi API để tải dữ liệu
       getPredictionsByUserId(currentPage, pageSize)
         .then((data) => {
           setPagesData((prevPagesData) => ({
@@ -148,9 +148,7 @@ const History = () => {
   };
 
   const handleView = (id: number) => {
-    // Thêm kiểu dữ liệu cho id
     navigate(`/getDetail/${id}`);
-    // Logic để xem chi tiết prediction dựa trên id
     console.log('Viewing prediction with id:', id);
   };
 
@@ -164,11 +162,18 @@ const History = () => {
       title: 'Time',
       dataIndex: 'time',
       key: 'time',
+      render: (text: string) => format(new Date(text), 'dd/MM/yyyy HH:mm:ss'),
     },
     {
       title: 'Disease',
       dataIndex: 'disease',
       key: 'disease',
+      // Sử dụng các name từ labels cho dropdown filter
+      filters: labels.map((item) => ({
+        text: item.name,
+        value: item.name,
+      })),
+      onFilter: (value: any, record: any) => record.disease === value,
     },
     {
       title: 'Confidence',
