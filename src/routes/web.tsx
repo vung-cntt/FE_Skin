@@ -5,6 +5,7 @@ export const webRoutes = {
   logout: '/logout',
   dashboard: '/dashboard',
   history: '/history',
+  getDetail: 'getDetail/:id',
   about: '/about',
   predict: '/predict',
 };

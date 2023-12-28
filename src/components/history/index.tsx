@@ -5,7 +5,7 @@ import { PredictionPage, Prediction } from '../../interfaces/models/getpredict';
 import { BreadcrumbProps } from 'antd';
 import BasePageContainer from '../layout/PageContainer';
 import { webRoutes } from '../../routes/web';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   Table,
   Space,
@@ -28,6 +28,7 @@ const breadcrumb: BreadcrumbProps = {
   ],
 };
 const History = () => {
+  const navigate = useNavigate();
   // Cập nhật state để sử dụng kiểu Prediction[]
   const [pagesData, setPagesData] = useState<Record<number, Prediction[]>>({});
   const [predictionPage, setPredictionPage] = useState<PredictionPage>({
@@ -148,6 +149,7 @@ const History = () => {
 
   const handleView = (id: number) => {
     // Thêm kiểu dữ liệu cho id
+    navigate(`/getDetail/${id}`);
     // Logic để xem chi tiết prediction dựa trên id
     console.log('Viewing prediction with id:', id);
   };

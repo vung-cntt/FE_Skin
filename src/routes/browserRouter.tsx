@@ -24,6 +24,9 @@ const Predict = loadable(() => import('../components/predict'), {
 const History = loadable(() => import('../components/history'), {
   fallback: fallbackElement,
 });
+const GetDetailPredict = loadable(() => import('../components/getDetail'), {
+  fallback: fallbackElement,
+});
 
 export const browserRouter = createBrowserRouter([
   {
@@ -68,6 +71,10 @@ export const browserRouter = createBrowserRouter([
       {
         path: webRoutes.history,
         element: <History />,
+      },
+      {
+        path: webRoutes.getDetail,
+        element: <GetDetailPredict />,
       },
       {
         path: webRoutes.about,
