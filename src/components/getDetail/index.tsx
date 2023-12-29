@@ -66,11 +66,11 @@ const GetDetailPredict = () => {
   return (
     <BasePageContainer breadcrumb={breadcrumb}>
       <h1>Prediction Detail</h1>
-      <div>
+      <div style={{ display: 'flex', alignItems: 'flex-start', gap: '20px' }}>
         {/* Image container */}
         <div
           style={{
-            width: '400px',
+            width: '600px',
             height: '400px',
             border: '1px solid black',
             display: 'flex',
@@ -83,15 +83,64 @@ const GetDetailPredict = () => {
           <img
             src={predictionDetail.data.image}
             alt="Uploaded"
-            style={{ maxWidth: '100%', maxHeight: '100%' }}
+            style={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+              objectPosition: 'center',
+            }}
           />
         </div>
 
         {/* Prediction results */}
-        <div>
-          <h2>Result</h2>
-          <p>Prediction: {predictionDetail.data.disease}</p>
-          <p>Confidence: {predictionDetail.data.confidence}</p>
+        <div
+          style={{
+            padding: '20px', // Khoảng cách bên trong khung
+            height: '200px', // Một nửa chiều cao của khung ảnh
+            width: '400px',
+            display: 'flex',
+            marginLeft: '200px',
+            flexDirection: 'column',
+            justifyContent: 'space-between', // Phân phối nội dung đều trong khung
+          }}
+        >
+          <h3
+            style={{
+              textAlign: 'center',
+              fontWeight: 'bold',
+              fontSize: '30px',
+            }}
+          >
+            Results
+          </h3>
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              rowGap: '10px',
+            }}
+          >
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                fontSize: '18px',
+              }}
+            >
+              <strong>Prediction:</strong>{' '}
+              <span>{predictionDetail.data.disease}</span>
+            </div>
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                fontSize: '18px',
+              }}
+            >
+              <strong>Confidence:</strong>{' '}
+              <span>{predictionDetail.data.confidence}</span>
+            </div>
+          </div>
         </div>
       </div>
     </BasePageContainer>

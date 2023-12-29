@@ -3,3 +3,50 @@
     width: 200px;
     height: 200px; 
 }
+.button-container {
+    display: flex;
+    justify-content: space-around; /* Phân bổ không gian đều xung quanh các nút */
+    padding: 10px 0; /* Thêm khoảng cách dọc giữa các nút và khung ảnh */
+  }
+  
+  .button {
+    background-color: white; /* Nền màu trắng */
+    color: rgb(161, 161, 255); /* Chữ màu xanh */
+    border: 2px solid rgb(161, 161, 245); /* Viền màu xanh */
+    padding: 10px 20px; /* Đệm để tăng kích thước của nút */
+    font-size: 16px; /* Kích thước chữ */
+    margin: 0 10px; /* Khoảng cách giữa các nút */
+    cursor: pointer;
+    display: flex; /* Bật chế độ hiển thị flexbox */
+    justify-content: center; /* Căn giữa nội dung theo chiều ngang */
+    align-items: center; /* Căn giữa nội dung theo chiều dọc */
+    text-align: center; /* Căn giữa văn bản */
+    text-decoration: none;
+    transition: background-color 0.3s, color 0.3s; /* Hiệu ứng chuyển đổi mượt mà */
+    outline: none; /* Xóa đường viền mặc định khi nút được nhấn hoặc tập trung */
+    /* Thêm chiều cao cố định và chiều rộng tối thiểu nếu bạn muốn */
+    min-width: 100px; /* Chiều rộng tối thiểu */
+    height: 40px; /* Chiều cao cố định */
+    margin-left:120px;
+    margin-top:10px
+  }
+  
+  .button:hover {
+    background-color: rgb(160, 160, 255); /* Nền màu xanh khi hover */
+    color: white; /* Chữ màu trắng khi hover */
+  }
+  
+  /* Đảm bảo các nút có kích thước bằng nhau */
+  .button:active,
+  .button:focus {
+    outline: none; /* Xóa đường viền mặc định khi nút được nhấn hoặc tập trung */
+  }
+  
+  /* Thêm CSS này nếu bạn muốn nút không được phép nhấn (disabled) có một style khác */
+  .button:disabled {
+    background-color: #ccc;
+    border-color: #ccc;
+    color: #666;
+    cursor: not-allowed;
+  }
+  

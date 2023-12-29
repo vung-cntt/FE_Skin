@@ -78,7 +78,7 @@ Settings including app name, theme color, meta tags, etc. can be controlled from
 ```ts
 //config.ts
 const CONFIG = {
-  appName: 'Reforge',
+  appName: 'Doctor V',
   helpLink: 'https://github.com/arifszn/reforge',
   enablePWA: true,
   theme: {
@@ -87,7 +87,7 @@ const CONFIG = {
     showBreadcrumb: true,
   },
   metaTags: {
-    title: 'Reforge',
+    title: 'Doctor V',
     description:
       'An out-of-box UI solution for enterprise applications as a React boilerplate.',
     imageURL: 'logo.svg',

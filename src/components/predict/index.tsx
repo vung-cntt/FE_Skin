@@ -126,47 +126,128 @@ const Predict = () => {
     <BasePageContainer breadcrumb={breadcrumb}>
       <div>
         <h1>Skin Cancer Detection</h1>
-        <div
-          style={{
-            width: '400px',
-            height: '400px',
-            border: '1px solid black',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            overflow: 'hidden',
-          }}
-        >
-          {imageSrc && (
-            <img
-              src={imageSrc}
-              alt="Uploaded"
-              style={{ maxWidth: '100%', maxHeight: '100%' }}
+        <div style={{ display: 'flex', alignItems: 'flex-start', gap: '20px' }}>
+          <div
+            style={{
+              width: '600px',
+              height: '400px',
+              border: '1px solid black',
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              overflow: 'hidden',
+              position: 'relative',
+            }}
+          >
+            {imageSrc && (
+              <img
+                src={imageSrc}
+                alt="Uploaded"
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover',
+                  objectPosition: 'center',
+                }}
+              />
+            )}
+            <input
+              type="file"
+              style={{
+                position: 'absolute',
+                width: '100%',
+                height: '100%',
+                top: 0,
+                left: 0,
+                opacity: 0,
+                cursor: 'pointer',
+              }}
+              onChange={handleImageUpload}
             />
-          )}
-          <input type="file" onChange={handleImageUpload} />
+            {!imageSrc && (
+              <p
+                style={{
+                  position: 'absolute',
+                  top: '50%',
+                  width: '100%',
+                  textAlign: 'center',
+                  color: 'grey',
+                  pointerEvents: 'none',
+                  transform: 'translateY(-50%)',
+                }}
+              >
+                Click here to add an image
+              </p>
+            )}
+          </div>
+          <div>
+            {result && file && (
+              <div
+                style={{
+                  padding: '20px', // Khoảng cách bên trong khung
+                  height: '200px', // Một nửa chiều cao của khung ảnh
+                  width: '400px',
+                  display: 'flex',
+                  marginLeft: '200px',
+                  flexDirection: 'column',
+                  justifyContent: 'space-between', // Phân phối nội dung đều trong khung
+                }}
+              >
+                <h3
+                  style={{
+                    textAlign: 'center',
+                    fontWeight: 'bold',
+                    fontSize: '30px',
+                  }}
+                >
+                  Results
+                </h3>
+                <div
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    rowGap: '10px',
+                  }}
+                >
+                  <div
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      fontSize: '18px',
+                    }}
+                  >
+                    <strong>Prediction:</strong> <span>{result.disease}</span>
+                  </div>
+                  <div
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      fontSize: '18px',
+                    }}
+                  >
+                    <strong>Confidence:</strong>{' '}
+                    <span>{result.confidence}</span>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
+
         <div style={{ display: 'flex' }}>
-          <Button type="primary" onClick={handlePredict} loading={loading}>
+          <Button
+            className="button"
+            type="primary"
+            onClick={handlePredict}
+            loading={loading}
+          >
             Predict
           </Button>
-          <Button type="primary" onClick={handleClear}>
+          <Button className="button" type="primary" onClick={handleClear}>
             Clear
           </Button>
         </div>
         {loading && <Spin />}
-
-        {result && file && (
-          <div>
-            <h2>Results</h2>
-            <div style={{ display: 'flex' }}>
-              <div>
-                <p>Prediction: {result.disease}</p>
-                <p>Confidence: {result.confidence}</p>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
     </BasePageContainer>
   );

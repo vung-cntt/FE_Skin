@@ -7,8 +7,8 @@ enum LayoutType {
 }
 
 const CONFIG = {
-  appName: 'Reforge',
-  helpLink: 'https://github.com/arifszn/reforge',
+  appName: 'Doctor V',
+  helpLink: 'https://www.belle.ai/about-us',
   enablePWA: true,
   theme: {
     accentColor: '#818cf8',
@@ -16,9 +16,8 @@ const CONFIG = {
     showBreadcrumb: true,
   },
   metaTags: {
-    title: 'Reforge',
-    description:
-      'An out-of-box UI solution for enterprise applications as a React boilerplate.',
+    title: 'Doctor V',
+    description: 'Join hands for a better life',
     imageURL: 'logo.svg',
   },
 };

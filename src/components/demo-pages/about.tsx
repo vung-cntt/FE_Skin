@@ -31,14 +31,11 @@ const About = () => {
               v{packageVersion}
             </p>
             <h1 className="font-display text-3xl tracking-tight text-slate-900">
-              Reforge
+              Doctor V
             </h1>
           </header>
           <div>
-            <p className="lead">
-              An out-of-box UI solution for enterprise applications as a React
-              boilerplate.{' '}
-            </p>
+            <p className="lead">Join hands for a better life. </p>
             <div className="my-12 grid grid-cols-1 gap-6 sm:grid-cols-2">
               <div className="group relative rounded-xl border border-slate-200">
                 <div className="absolute -inset-px rounded-xl border-2 border-transparent opacity-0 [background:linear-gradient(var(--quick-links-hover-bg,theme(colors.sky.50)),var(--quick-links-hover-bg,theme(colors.sky.50)))_padding-box,linear-gradient(to_top,theme(colors.indigo.400),theme(colors.cyan.400),theme(colors.sky.500))_border-box] group-hover:opacity-100" />
