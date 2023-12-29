@@ -1,0 +1,10 @@
+.custom-ok-button {
+    background-color: #f5222d; /* Màu đỏ */
+    border-color: #f5222d; /* Màu viền đỏ */
+  }
+  
+  /* Đối với màu khi hover */
+  .custom-ok-button:hover {
+    background-color: #cf1322; /* Màu đỏ đậm hơn */
+    border-color: #cf1322; /* Màu viền đỏ đậm hơn */
+  }

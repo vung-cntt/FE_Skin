@@ -16,6 +16,7 @@ import {
 } from 'antd';
 import { format } from 'date-fns';
 import labels from './fitler';
+import './index.css';
 
 const breadcrumb: BreadcrumbProps = {
   items: [
@@ -191,6 +192,7 @@ const History = () => {
             onConfirm={() => handleDelete(record.id)}
             okText="Yes"
             cancelText="No"
+            okButtonProps={{ className: 'custom-ok-button' }}
           >
             <Button type="primary" danger>
               Delete

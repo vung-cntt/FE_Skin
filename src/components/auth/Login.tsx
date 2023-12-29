@@ -41,7 +41,6 @@ const Login = () => {
       localStorage.setItem('accessToken', data.access_token);
       toast.success('Login Sccessfuly');
 
-      // Sau khi đăng nhập thành công, chuyển hướng đến trang mong muốn
       navigate(from, { replace: true });
     } catch (error) {
       console.error('An error occurred during login:', error);

@@ -1,4 +1,3 @@
-import bcrypt from 'bcryptjs';
 import axios from 'axios';
 
 const API_BASE_URL = 'http://127.0.0.1:5000/api';
@@ -30,14 +29,12 @@ export const signup = async (
   password: string
 ) => {
   // Mã hóa mật khẩu
-  const salt = bcrypt.genSaltSync(10);
-  const hashedPassword = bcrypt.hashSync(password, salt);
 
   try {
     const response = await axios.post(`${API_BASE_URL}/signup`, {
       username,
       email,
-      password: hashedPassword,
+      password,
     });
 
     if (response.status === 200) {
