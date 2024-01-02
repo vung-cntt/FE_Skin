@@ -37,10 +37,13 @@ const Login = () => {
 
       // Xử lý dữ liệu đăng nhập tại đây
       // Ví dụ: Lưu token vào Redux store
+      window.location.reload();
 
       dispatch(login({ token: data.access_token }));
       localStorage.setItem('accessToken', data.access_token);
       localStorage.setItem('uid', data.idUser);
+      localStorage.setItem('username', data.user_name);
+
       toast.success('Login Sccessfuly');
 
       navigate(from, { replace: true });

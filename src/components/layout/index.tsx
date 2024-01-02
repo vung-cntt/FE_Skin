@@ -39,7 +39,7 @@ const Layout = () => {
       handleErrorResponse(error);
     });
   };
-
+  const username = localStorage.getItem('username');
   return (
     <div className="h-screen">
       <ProLayout
@@ -67,7 +67,7 @@ const Layout = () => {
           className: 'bg-primary bg-opacity-20 text-primary text-opacity-90',
           size: 'small',
           shape: 'square',
-          title: 'Admin',
+          title: username,
           render: (_, dom) => {
             return (
               <Dropdown
