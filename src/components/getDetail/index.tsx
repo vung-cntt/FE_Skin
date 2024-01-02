@@ -61,7 +61,50 @@ const GetDetailPredict = () => {
   if (!predictionDetail) {
     return <p>No prediction details available.</p>;
   }
-  console.log(predictionDetail, 'vững đỉnh vãi lon');
+  const renderPredictionContent = () => {
+    if (predictionDetail.data.disease === 'Error') {
+      // Nếu disease là Error, hiển thị thông báo không phù hợp
+      return (
+        <span
+          style={{
+            fontSize: '15px',
+            color: '#cc3300',
+            fontFamily: 'sans-serif',
+            fontWeight: 'bold',
+          }}
+        >
+          Ảnh không phù hợp, vui lòng kiểm tra lại !
+        </span>
+      );
+    } else {
+      // Nếu không, hiển thị chi tiết dự đoán
+      return (
+        <>
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              fontSize: '18px',
+            }}
+          >
+            <strong>Prediction:</strong>{' '}
+            <span>{predictionDetail.data.disease}</span>
+          </div>
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              fontSize: '18px',
+            }}
+          >
+            <strong>Confidence:</strong>{' '}
+            <span>{`${predictionDetail.data.confidence}%`}</span>
+          </div>
+        </>
+      );
+    }
+  };
+
   // Render the detail content
   return (
     <BasePageContainer breadcrumb={breadcrumb}>
@@ -120,26 +163,7 @@ const GetDetailPredict = () => {
               rowGap: '10px',
             }}
           >
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                fontSize: '18px',
-              }}
-            >
-              <strong>Prediction:</strong>{' '}
-              <span>{predictionDetail.data.disease}</span>
-            </div>
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                fontSize: '18px',
-              }}
-            >
-              <strong>Confidence:</strong>{' '}
-              <span>{predictionDetail.data.confidence}</span>
-            </div>
+            {renderPredictionContent()}
           </div>
         </div>
       </div>

@@ -87,7 +87,15 @@ const Predict = () => {
         formData.append('file', imageBlob, file.name); // Thêm Blob vào formData
 
         const predictionResult = await predict(formData); // Gửi formData đến API
-        setResult(predictionResult);
+        if (predictionResult.disease === 'Error') {
+          // Nếu không phải ảnh ngoài da, cập nhật UI để hiển thị thông báo
+          setResult({
+            disease: 'Ảnh không phù hợp, vui lòng kiểm tra lại',
+            confidence: '',
+          });
+        } else {
+          setResult(predictionResult);
+        }
 
         // Chuyển đổi Blob sang định dạng Base64 hoặc sử dụng một định dạng khác nếu cần
         const reader = new FileReader();
@@ -122,6 +130,7 @@ const Predict = () => {
     setImageSrc('');
     setResult(null);
   };
+
   return (
     <BasePageContainer breadcrumb={breadcrumb}>
       <div>
@@ -193,42 +202,73 @@ const Predict = () => {
                   justifyContent: 'space-between', // Phân phối nội dung đều trong khung
                 }}
               >
-                <h3
-                  style={{
-                    textAlign: 'center',
-                    fontWeight: 'bold',
-                    fontSize: '30px',
-                  }}
-                >
-                  Results
-                </h3>
-                <div
-                  style={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    rowGap: '10px',
-                  }}
-                >
-                  <div
-                    style={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      fontSize: '18px',
-                    }}
-                  >
-                    <strong>Prediction:</strong> <span>{result.disease}</span>
-                  </div>
-                  <div
-                    style={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      fontSize: '18px',
-                    }}
-                  >
-                    <strong>Confidence:</strong>{' '}
-                    <span>{result.confidence}</span>
-                  </div>
-                </div>
+                {result.confidence ? (
+                  <>
+                    <h3
+                      style={{
+                        textAlign: 'center',
+                        fontWeight: 'bold',
+                        fontSize: '30px',
+                      }}
+                    >
+                      Results
+                    </h3>
+                    <div
+                      style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        rowGap: '10px',
+                      }}
+                    >
+                      <div
+                        style={{
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          fontSize: '18px',
+                        }}
+                      >
+                        <strong>Prediction:</strong>{' '}
+                        <span>{result.disease}</span>
+                      </div>
+                      <div
+                        style={{
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          fontSize: '18px',
+                        }}
+                      >
+                        <strong>Confidence:</strong>{' '}
+                        <span>{result.confidence}</span>
+                      </div>
+                    </div>
+                    <div>
+                      <span
+                        style={{
+                          fontSize: '15px',
+                          color: '#ffcc00',
+                          fontFamily: 'sans-serif',
+                          fontWeight: 'bold',
+                        }}
+                      >
+                        Đây chỉ là kết quả dự đoán, hãy đến cơ sở y tế gần nhất
+                        để nhận được sự tư vấn từ chuyên gia{' '}
+                      </span>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div
+                      style={{
+                        fontSize: '15px',
+                        color: '#cc3300',
+                        fontFamily: 'sans-serif',
+                        fontWeight: 'bold',
+                      }}
+                    >
+                      <p>{result.disease}</p>
+                    </div>
+                  </>
+                )}
               </div>
             )}
           </div>
