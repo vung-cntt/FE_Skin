@@ -33,6 +33,7 @@ const Layout = () => {
     navigate(webRoutes.login, {
       replace: true,
     });
+    localStorage.clear();
 
     http.post(apiRoutes.logout).catch((error) => {
       handleErrorResponse(error);
