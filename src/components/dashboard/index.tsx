@@ -1,31 +1,15 @@
-import { useEffect, useState } from 'react';
+// import { useEffect, useState } from 'react';
 import BasePageContainer from '../layout/PageContainer';
-import {
-  Avatar,
-  BreadcrumbProps,
-  Card,
-  Col,
-  List,
-  Progress,
-  Rate,
-  Row,
-  Table,
-  Tag,
-} from 'antd';
+import { BreadcrumbProps } from 'antd';
 import { webRoutes } from '../../routes/web';
 import { Link } from 'react-router-dom';
-import StatCard from './StatCard';
-import { AiOutlineStar, AiOutlineTeam } from 'react-icons/ai';
-import Icon from '@ant-design/icons';
-import { BiCommentDetail, BiPhotoAlbum } from 'react-icons/bi';
-import { MdOutlineArticle, MdOutlinePhoto } from 'react-icons/md';
-import { StatisticCard } from '@ant-design/pro-components';
-import LazyImage from '../lazy-image';
-import { User } from '../../interfaces/models/user';
-import http from '../../utils/http';
-import { apiRoutes } from '../../routes/api';
-import { handleErrorResponse } from '../../utils';
-import { Review } from '../../interfaces/models/review';
+import React from 'react';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import './index.css';
+import { createPost, getAllPosts } from '../../api/post';
+import { useState, useEffect } from 'react';
+import { toast } from 'sonner';
+import { Post } from '../../interfaces/models/getPost';
 
 const breadcrumb: BreadcrumbProps = {
   items: [
@@ -37,231 +21,252 @@ const breadcrumb: BreadcrumbProps = {
 };
 
 const Dashboard = () => {
+  const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  const [users, setUsers] = useState<User[]>([]);
-  const [reviews, setReviews] = useState<Review[]>([]);
+  const [title, setTitle] = useState('');
+  // const [content, setContent] = useState('');
+  const [image, setImage] = useState<File | null>(null);
+  const [selectedName, setSelectedName] = useState('');
+
+  const [showUploadForm, setShowUploadForm] = useState(false);
+  const [imagePreview, setImagePreview] = useState<string | null>(null); // Cập nhật kiểu của state
+  // const [selectedFile, setSelectedFile] = useState(null);
+  const [modalIsOpen, setModalIsOpen] = useState(false);
+  const [currentImage, setCurrentImage] = useState(null);
 
   useEffect(() => {
-    Promise.all([loadUsers(), loadReviews()])
-      .then(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const response = await getAllPosts();
+        setPosts(response.data);
+      } catch (error) {
+        console.error('Lỗi khi tải bài viết:', error);
+      } finally {
         setLoading(false);
-      })
-      .catch((error) => {
-        handleErrorResponse(error);
-      });
+      }
+    };
+
+    fetchData();
   }, []);
 
-  const loadUsers = () => {
-    return http
-      .get(apiRoutes.users, {
-        params: {
-          per_page: 4,
-        },
-      })
-      .then((response) => {
-        setUsers(response.data.data);
-      })
-      .catch((error) => {
-        handleErrorResponse(error);
-      });
+  if (loading) {
+    return <div>Đang tải...</div>;
+  }
+  const openModal = (imageSrc: string) => {
+    setCurrentImage(imageSrc);
+    setModalIsOpen(true);
   };
-
-  const loadReviews = () => {
-    return http
-      .get(apiRoutes.reviews, {
-        params: {
-          per_page: 5,
-        },
-      })
-      .then((response) => {
-        setReviews(
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          response.data.data.map((rawReview: any) => {
-            const review: Review = {
-              id: rawReview.id,
-              title: rawReview.name,
-              color: rawReview.color,
-              year: rawReview.year,
-              star: Math.floor(Math.random() * 5) + 1,
-            };
-
-            return review;
-          })
-        );
-      })
-      .catch((error) => {
-        handleErrorResponse(error);
-      });
+  const handleIconClick = () => {
+    setShowUploadForm(!showUploadForm);
   };
-
+  const closeModal = () => {
+    setModalIsOpen(false);
+  };
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    try {
+      const post = await createPost(title, image);
+      toast.success('Create post successfully');
+      window.location.reload();
+      console.log('Post created', post);
+    } catch (error) {
+      alert('Failed to create post');
+    }
+  };
+  const handleFileChange = (e: any) => {
+    const file = e.target.files[0];
+    if (file) {
+      setImage(file);
+      setSelectedName(file.name);
+      setImagePreview(URL.createObjectURL(file)); // Tạo URL xem trước
+    }
+  };
+  const handleCloseForm = () => {
+    setShowUploadForm(false);
+    setImagePreview(null);
+    setSelectedName('');
+    setImage(null);
+  };
   return (
     <BasePageContainer breadcrumb={breadcrumb} transparent={true}>
-      <Row gutter={24}>
-        <Col xl={6} lg={6} md={12} sm={24} xs={24} style={{ marginBottom: 24 }}>
-          <StatCard
-            loading={loading}
-            icon={<Icon component={AiOutlineTeam} />}
-            title="Users"
-            number={12}
-          />
-        </Col>
-        <Col xl={6} lg={6} md={12} sm={24} xs={24} style={{ marginBottom: 24 }}>
-          <StatCard
-            loading={loading}
-            icon={<Icon component={MdOutlineArticle} />}
-            title="Posts"
-            number={100}
-          />
-        </Col>
-        <Col xl={6} lg={6} md={12} sm={24} xs={24} style={{ marginBottom: 24 }}>
-          <StatCard
-            loading={loading}
-            icon={<Icon component={BiPhotoAlbum} />}
-            title="Albums"
-            number={100}
-          />
-        </Col>
-        <Col xl={6} lg={6} md={12} sm={24} xs={24} style={{ marginBottom: 24 }}>
-          <StatCard
-            loading={loading}
-            icon={<Icon component={MdOutlinePhoto} />}
-            title="Photos"
-            number={500}
-          />
-        </Col>
-        <Col xl={6} lg={6} md={12} sm={24} xs={24} style={{ marginBottom: 24 }}>
-          <StatCard
-            loading={loading}
-            icon={<Icon component={BiCommentDetail} />}
-            title="Comments"
-            number={500}
-          />
-        </Col>
-        <Col xl={6} lg={6} md={12} sm={24} xs={24} style={{ marginBottom: 24 }}>
-          <StatCard
-            loading={loading}
-            icon={<Icon component={AiOutlineStar} />}
-            title="Reviews"
-            number={100}
-          />
-        </Col>
-        <Col
-          xl={12}
-          lg={12}
-          md={24}
-          sm={24}
-          xs={24}
-          style={{ marginBottom: 24 }}
-        >
-          <Card bordered={false} className="w-full h-full cursor-default">
-            <StatisticCard.Group direction="row">
-              <StatisticCard
-                statistic={{
-                  title: 'XYZ',
-                  value: loading ? 0 : 123,
-                }}
+      <div>
+        <link
+          href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css"
+          rel="stylesheet"
+        />
+        <div className="container bootdey">
+          {modalIsOpen && (
+            <div className="modal" onClick={closeModal}>
+              <span className="close">&times;</span>
+              <img
+                className="modal-content"
+                src={currentImage || ''}
+                alt="Full Size"
               />
-              <StatisticCard
-                statistic={{
-                  title: 'Progress',
-                  value: 'ABC',
-                }}
-                chart={
-                  <Progress
-                    className="text-primary"
-                    percent={loading ? 0 : 75}
-                    type="circle"
-                    size={'small'}
-                    strokeColor={CONFIG.theme.accentColor}
+            </div>
+          )}
+          <div className="col-md-12 bootstrap snippets">
+            <div className="panel">
+              <form onSubmit={handleSubmit}>
+                <div className="panel-body">
+                  <input
+                    type="text"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    placeholder="What do you think ?"
+                    className="form-control"
                   />
-                }
-                chartPlacement="left"
-              />
-            </StatisticCard.Group>
-          </Card>
-        </Col>
-        <Col
-          xl={12}
-          lg={12}
-          md={12}
-          sm={24}
-          xs={24}
-          style={{ marginBottom: 24 }}
-        >
-          <Card bordered={false} className="w-full h-full cursor-default">
-            <List
-              loading={loading}
-              itemLayout="horizontal"
-              dataSource={users}
-              renderItem={(user) => (
-                <List.Item>
-                  <List.Item.Meta
-                    avatar={
-                      <Avatar
-                        shape="circle"
-                        size="small"
-                        src={
-                          <LazyImage
-                            src={user.avatar}
-                            placeholder={
-                              <div className="bg-gray-100 h-full w-full" />
-                            }
-                          />
-                        }
-                      />
-                    }
-                    title={`${user.first_name} ${user.last_name}`}
-                    description={user.email}
-                  />
-                </List.Item>
-              )}
-            />
-          </Card>
-        </Col>
-        <Col
-          xl={12}
-          lg={12}
-          md={12}
-          sm={24}
-          xs={24}
-          style={{ marginBottom: 24 }}
-        >
-          <Card bordered={false} className="w-full h-full cursor-default">
-            <Table
-              loading={loading}
-              pagination={false}
-              showHeader={false}
-              dataSource={reviews}
-              columns={[
-                {
-                  title: 'Title',
-                  dataIndex: 'title',
-                  key: 'title',
-                  align: 'left',
-                },
-                {
-                  title: 'Year',
-                  dataIndex: 'year',
-                  key: 'year',
-                  align: 'center',
-                  render: (_, row: Review) => (
-                    <Tag color={row.color}>{row.year}</Tag>
-                  ),
-                },
-                {
-                  title: 'Star',
-                  dataIndex: 'star',
-                  key: 'star',
-                  align: 'center',
-                  render: (_, row: Review) => (
-                    <Rate disabled defaultValue={row.star} />
-                  ),
-                },
-              ]}
-            />
-          </Card>
-        </Col>
-      </Row>
+                  {/* <input
+                    value={content}
+                    onChange={(e) => setContent(e.target.value)}
+                    placeholder="Content"
+                  /> */}
+                  <div className="mar-top clearfix">
+                    {showUploadForm && (
+                      <div className="upload-form">
+                        <div className="close-button" onClick={handleCloseForm}>
+                          <i className="fa fa-times"></i>
+                        </div>
+                        <div className="file-upload">
+                          <h3>{selectedName || 'Click box to upload'}</h3>
+                          <input type="file" onChange={handleFileChange} />
+                          {imagePreview && (
+                            <img src={imagePreview} alt="Preview" />
+                          )}{' '}
+                          {/* Hiển thị ảnh xem trước */}
+                        </div>
+                      </div>
+                    )}
+                    <div
+                      className="btn btn-trans btn-icon add-tooltip"
+                      onClick={handleIconClick}
+                    >
+                      <i className="fa fa-image"></i>
+                    </div>
+                    <button
+                      className="btn btn-sm btn-primary pull-right"
+                      type="submit"
+                    >
+                      <i className="fa fa-pencil fa-fw"></i>
+                      Create Post
+                    </button>
+                  </div>
+                </div>
+              </form>
+            </div>
+            <h2>Tất Cả Bài Viết</h2>
+            {posts.map((post: Post) => (
+              <div key={post._id}>
+                {/* Hiển thị các chi tiết khác của bài viết nếu cần */}
+
+                <div className="panel">
+                  <div className="panel-body">
+                    <div className="media-block">
+                      <a className="media-left" href="#/">
+                        <img
+                          className="img-circle img-sm"
+                          alt="Profile Picture"
+                          src="https://bootdey.com/img/Content/avatar/avatar1.png"
+                        />
+                      </a>
+                      <div className="media-body">
+                        <div className="mar-btm">
+                          <a
+                            href="#/"
+                            className="btn-link text-semibold media-heading box-inline"
+                          >
+                            {post.author}
+                          </a>
+                          <p className="text-muted text-sm">
+                            <i className="fa fa-mobile fa-lg"></i>
+                            {post.updated_at}
+                          </p>
+                        </div>
+                        <p>{post.title}</p>
+                        <div className="image-container">
+                          {post.image_url && (
+                            <div className="post-image">
+                              <img
+                                src={post.image_url}
+                                alt="Post"
+                                onClick={() => openModal(post.image_url)}
+                                style={{ cursor: 'pointer' }} // Tùy chọn: thay đổi con trỏ để cho người dùng biết có thể nhấp vào ảnh
+                              />
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="pad-ver">
+                          <div className="btn-group">
+                            <a
+                              className="btn btn-sm btn-default btn-hover-success"
+                              href="#/"
+                            >
+                              <i className="fa fa-thumbs-up"></i>
+                            </a>
+                            <a
+                              className="btn btn-sm btn-default btn-hover-danger"
+                              href="#/"
+                            >
+                              <i className="fa fa-thumbs-down"></i>
+                            </a>
+                          </div>
+                          <a
+                            className="btn btn-sm btn-default btn-hover-primary"
+                            href="#/"
+                          >
+                            Comment
+                          </a>
+                        </div>
+                        <hr />
+
+                        {post.comments.length > 0
+                          ? post.comments.map((comment, index) => (
+                              <div key={index} className="media-block">
+                                <a className="media-left" href="#/">
+                                  <img
+                                    className="img-circle img-sm"
+                                    alt="Profile Picture"
+                                    src="https://bootdey.com/img/Content/avatar/avatar2.png" // Đây là avatar mẫu, thay thế bằng avatar thực tế nếu có
+                                  />
+                                </a>
+                                <div className="media-body">
+                                  <div className="mar-btm">
+                                    <a
+                                      href="#/"
+                                      className="btn-link text-semibold media-heading box-inline"
+                                    >
+                                      {comment.user} {/* Tên người dùng */}
+                                    </a>
+                                    {/* Thêm thời gian hoặc thông tin khác nếu cần */}
+                                  </div>
+                                  <p>{comment.text}</p>
+                                  {/* Các nút tương tác hoặc thông tin khác */}
+                                </div>
+                                <hr />
+                              </div>
+                            ))
+                          : null}
+                      </div>
+                    </div>
+
+                    <div className="media-block pad-all">
+                      <a className="media-left" href="#/">
+                        <img
+                          className="img-circle img-sm"
+                          alt="Profile Picture"
+                          src="https://bootdey.com/img/Content/avatar/avatar1.png"
+                        />
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
     </BasePageContainer>
   );
 };
