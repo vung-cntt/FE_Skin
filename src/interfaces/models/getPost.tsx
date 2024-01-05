@@ -5,6 +5,7 @@ export interface CommentReply {
 }
 
 export interface Comment {
+  _id: string;
   comment_id: number;
   replies: CommentReply[];
   text: string;

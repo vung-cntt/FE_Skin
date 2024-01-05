@@ -32,11 +32,12 @@ export const createPost = async (
 
 export const addComment = async (post_id: number, text: string) => {
   try {
+    const formData = new FormData();
+    formData.append('text', text);
+
     const response = await axios.post(
       `${API_BASE_URL}/posts/${post_id}/comments`,
-      {
-        text,
-      }
+      formData
     );
     return response.data;
   } catch (error) {
@@ -47,11 +48,12 @@ export const addComment = async (post_id: number, text: string) => {
 
 export const addReaction = async (post_id: number, type: 'like' | 'unlike') => {
   try {
+    const formData = new FormData();
+    formData.append('type', type);
+
     const response = await axios.post(
       `${API_BASE_URL}/posts/${post_id}/reactions`,
-      {
-        type,
-      }
+      formData
     );
     return response.data;
   } catch (error) {
@@ -66,9 +68,11 @@ export const addReply = async (
   text: string
 ) => {
   try {
+    const formData = new FormData();
+    formData.append('text', text);
     const response = await axios.post(
       `${API_BASE_URL}/posts/${post_id}/comments/${comment_id}/replies`,
-      { text }
+      formData
     );
     return response.data;
   } catch (error) {

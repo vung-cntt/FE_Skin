@@ -1,4 +1,3 @@
-// import { useEffect, useState } from 'react';
 import BasePageContainer from '../layout/PageContainer';
 import { BreadcrumbProps } from 'antd';
 import { webRoutes } from '../../routes/web';
@@ -6,7 +5,13 @@ import { Link } from 'react-router-dom';
 import React from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './index.css';
-import { createPost, getAllPosts } from '../../api/post';
+import {
+  createPost,
+  getAllPosts,
+  addComment,
+  addReply,
+  addReaction,
+} from '../../api/post';
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { Post } from '../../interfaces/models/getPost';
@@ -24,16 +29,20 @@ const Dashboard = () => {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [title, setTitle] = useState('');
-  // const [content, setContent] = useState('');
+  const [replies, setReplies] = useState<Record<number, string>>({});
+  const [showReplyInput, setShowReplyInput] = useState<Record<number, boolean>>(
+    {}
+  );
   const [image, setImage] = useState<File | null>(null);
   const [selectedName, setSelectedName] = useState('');
+  const [openReplyId, setOpenReplyId] = useState<number | null>(null);
 
   const [showUploadForm, setShowUploadForm] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null); // Cập nhật kiểu của state
   // const [selectedFile, setSelectedFile] = useState(null);
-  const [modalIsOpen, setModalIsOpen] = useState(false);
-  const [currentImage, setCurrentImage] = useState(null);
-
+  const [showImageModal, setShowImageModal] = useState(false);
+  const [selectedPost, setSelectedPost] = useState<Post | null>(null);
+  const [comments, setComments] = useState<Record<number, string>>({});
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -53,16 +62,11 @@ const Dashboard = () => {
   if (loading) {
     return <div>Đang tải...</div>;
   }
-  const openModal = (imageSrc: string) => {
-    setCurrentImage(imageSrc);
-    setModalIsOpen(true);
-  };
+
   const handleIconClick = () => {
     setShowUploadForm(!showUploadForm);
   };
-  const closeModal = () => {
-    setModalIsOpen(false);
-  };
+
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     try {
@@ -72,6 +76,35 @@ const Dashboard = () => {
       console.log('Post created', post);
     } catch (error) {
       alert('Failed to create post');
+    }
+  };
+  const handleAddComment = async (postId: number) => {
+    try {
+      const commentText = comments[postId];
+      if (commentText) {
+        await addComment(postId, commentText);
+        setComments((prevComments) => ({ ...prevComments, [postId]: '' })); // Reset comment input
+        const response = await getAllPosts();
+        setPosts(response.data);
+      }
+    } catch (error) {
+      console.error('Failed to add comment', error);
+    }
+  };
+  const handleAddReply = async (postId: number, commentId: number) => {
+    try {
+      const replyText = replies[commentId];
+      // Nếu replyText không phải là chuỗi rỗng, tiếp tục thêm reply
+      if (replyText) {
+        await addReply(postId, commentId, replyText);
+        setReplies((prevReplies) => ({ ...prevReplies, [commentId]: '' })); // Reset reply input
+        // Tải lại bài viết sau khi thêm reply
+        const response = await getAllPosts();
+        setPosts(response.data);
+        setShowReplyInput((prevShow) => ({ ...prevShow, [commentId]: false })); // Ẩn input
+      }
+    } catch (error) {
+      console.error('Failed to add reply', error);
     }
   };
   const handleFileChange = (e: any) => {
@@ -88,24 +121,148 @@ const Dashboard = () => {
     setSelectedName('');
     setImage(null);
   };
+  const handleImageClick = (post: Post) => {
+    setSelectedPost(post);
+    setShowImageModal(true);
+  };
+
+  const handleToggleReplies = (commentId: number) => {
+    if (openReplyId === commentId) {
+      setOpenReplyId(null); // Nếu comment hiện tại đã mở, đóng nó lại.
+    } else {
+      setOpenReplyId(commentId); // Nếu comment hiện tại đóng, mở nó ra.
+    }
+  };
+  const toggleReplyInput = (commentId: number) => {
+    setShowReplyInput((prevShow) => ({
+      ...prevShow,
+      [commentId]: !prevShow[commentId],
+    }));
+  };
+  const handleReaction = async (postId: number, type: 'like' | 'unlike') => {
+    try {
+      await addReaction(postId, type);
+      const response = await getAllPosts();
+      setPosts(response.data);
+    } catch (error) {
+      console.error('Failed to add reaction', error);
+    }
+  };
+
   return (
     <BasePageContainer breadcrumb={breadcrumb} transparent={true}>
+      {showImageModal && selectedPost && (
+        <div className="modal" onClick={() => setShowImageModal(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="image-container">
+              <img src={selectedPost.image_url} alt="Selected Image" />
+            </div>
+            <div className="post-info">
+              {/* Hiển thị thông tin bài đăng ở đây */}
+              <div className="info-author">
+                <a className="media-left" href="#/">
+                  <img
+                    className="img-circle img-sm"
+                    alt="Profile Picture"
+                    src="https://bootdey.com/img/Content/avatar/avatar1.png"
+                  />
+                </a>
+                <div>
+                  <a
+                    href="#/"
+                    style={{ fontSize: '20px' }}
+                    className="btn-link text-semibold media-heading box-inline"
+                  >
+                    {selectedPost.author}
+                  </a>
+                  <p className="text-muted text-sm">
+                    <i className="fa fa-mobile fa-lg"></i>
+                    {selectedPost.updated_at}
+                  </p>
+                </div>
+              </div>
+              <div>
+                <span style={{ fontSize: '20px' }}>{selectedPost.title}</span>
+              </div>
+
+              <div className="pad-ver">
+                <div className="btn-group">
+                  <a
+                    className="btn btn-sm btn-default btn-hover-success"
+                    href="#/"
+                  >
+                    <i className="fa fa-thumbs-up"></i>
+                  </a>
+                  <a
+                    className="btn btn-sm btn-default btn-hover-danger"
+                    href="#/"
+                  >
+                    <i className="fa fa-thumbs-down"></i>
+                  </a>
+                </div>
+              </div>
+              <hr />
+              {/* Thêm thông tin khác nếu cần */}
+              <div className="comments-section">
+                {selectedPost.comments.map((comment, index) => (
+                  <div key={index}>
+                    <div className="info-author">
+                      <a className="media-left" href="#/">
+                        <img
+                          className="img-circle img-sm"
+                          alt="Profile Picture"
+                          src="https://bootdey.com/img/Content/avatar/avatar2.png" // Đây là avatar mẫu, thay thế bằng avatar thực tế nếu có
+                        />
+                      </a>
+                      <div>
+                        <a
+                          href="#/"
+                          style={{ fontSize: '20px' }}
+                          className="btn-link text-semibold media-heading box-inline"
+                        >
+                          {comment.user}
+                        </a>
+                        <p style={{ fontSize: '15px' }}>{comment.text}</p>
+                      </div>
+                    </div>
+
+                    {comment.replies &&
+                      comment.replies.map((reply, index) => (
+                        <div key={index} style={{ marginLeft: '20px' }}>
+                          <div className="info-reply">
+                            <a className="media-left" href="#/">
+                              <img
+                                className="img-circle img-sm"
+                                alt="Profile Picture"
+                                src="https://bootdey.com/img/Content/avatar/avatar1.png"
+                              />
+                            </a>
+                            <div>
+                              <a
+                                href="#/"
+                                style={{ fontSize: '20px' }}
+                                className="btn-link text-semibold media-heading box-inline"
+                              >
+                                {reply.user}
+                              </a>
+                              <p>{reply.text}</p>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
       <div>
         <link
           href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css"
           rel="stylesheet"
         />
         <div className="container bootdey">
-          {modalIsOpen && (
-            <div className="modal" onClick={closeModal}>
-              <span className="close">&times;</span>
-              <img
-                className="modal-content"
-                src={currentImage || ''}
-                alt="Full Size"
-              />
-            </div>
-          )}
           <div className="col-md-12 bootstrap snippets">
             <div className="panel">
               <form onSubmit={handleSubmit}>
@@ -133,8 +290,7 @@ const Dashboard = () => {
                           <input type="file" onChange={handleFileChange} />
                           {imagePreview && (
                             <img src={imagePreview} alt="Preview" />
-                          )}{' '}
-                          {/* Hiển thị ảnh xem trước */}
+                          )}
                         </div>
                       </div>
                     )}
@@ -158,8 +314,6 @@ const Dashboard = () => {
             <h2>Tất Cả Bài Viết</h2>
             {posts.map((post: Post) => (
               <div key={post._id}>
-                {/* Hiển thị các chi tiết khác của bài viết nếu cần */}
-
                 <div className="panel">
                   <div className="panel-body">
                     <div className="media-block">
@@ -190,34 +344,30 @@ const Dashboard = () => {
                               <img
                                 src={post.image_url}
                                 alt="Post"
-                                onClick={() => openModal(post.image_url)}
-                                style={{ cursor: 'pointer' }} // Tùy chọn: thay đổi con trỏ để cho người dùng biết có thể nhấp vào ảnh
+                                onClick={() => handleImageClick(post)}
                               />
                             </div>
                           )}
                         </div>
 
-                        <div className="pad-ver">
-                          <div className="btn-group">
-                            <a
-                              className="btn btn-sm btn-default btn-hover-success"
-                              href="#/"
-                            >
-                              <i className="fa fa-thumbs-up"></i>
-                            </a>
-                            <a
-                              className="btn btn-sm btn-default btn-hover-danger"
-                              href="#/"
-                            >
-                              <i className="fa fa-thumbs-down"></i>
-                            </a>
-                          </div>
-                          <a
-                            className="btn btn-sm btn-default btn-hover-primary"
-                            href="#/"
+                        <div
+                          className="btn-group"
+                          style={{ marginTop: '10px' }}
+                        >
+                          <button
+                            className="btn btn-sm btn-default btn-hover-success"
+                            onClick={() => handleReaction(post.post_id, 'like')}
                           >
-                            Comment
-                          </a>
+                            <i className="fa fa-thumbs-up"></i>
+                          </button>
+                          <button
+                            className="btn btn-sm btn-default btn-hover-danger"
+                            onClick={() =>
+                              handleReaction(post.post_id, 'unlike')
+                            }
+                          >
+                            <i className="fa fa-thumbs-down"></i>
+                          </button>
                         </div>
                         <hr />
 
@@ -242,8 +392,101 @@ const Dashboard = () => {
                                     {/* Thêm thời gian hoặc thông tin khác nếu cần */}
                                   </div>
                                   <p>{comment.text}</p>
+                                  {showReplyInput[comment.comment_id] && (
+                                    <form
+                                      onSubmit={(e) => {
+                                        e.preventDefault();
+                                        handleAddReply(
+                                          post.post_id,
+                                          comment.comment_id
+                                        );
+                                      }}
+                                      className="input-group"
+                                    >
+                                      <input
+                                        type="text"
+                                        value={
+                                          replies[comment.comment_id] || ''
+                                        }
+                                        onChange={(e) =>
+                                          setReplies({
+                                            ...replies,
+                                            [comment.comment_id]:
+                                              e.target.value,
+                                          })
+                                        }
+                                        placeholder="Add a reply"
+                                        className="form-control"
+                                      />
+                                      <div className="input-group-btn">
+                                        <button
+                                          className="btn btn-primary"
+                                          type="submit"
+                                        >
+                                          <i className="fa fa-paper-plane"></i>
+                                        </button>
+                                      </div>
+                                    </form>
+                                  )}
+                                  <button
+                                    className="btn btn-sm btn-default"
+                                    type="button"
+                                    onClick={() =>
+                                      toggleReplyInput(comment.comment_id)
+                                    }
+                                  >
+                                    <i className="fa fa-reply fa-fw"></i> Reply
+                                  </button>
                                   {/* Các nút tương tác hoặc thông tin khác */}
                                 </div>
+
+                                {comment.replies &&
+                                  comment.replies.length > 0 && (
+                                    <div>
+                                      <p
+                                        onClick={() =>
+                                          handleToggleReplies(
+                                            comment.comment_id
+                                          )
+                                        }
+                                      >
+                                        {openReplyId === comment.comment_id ? (
+                                          <a>Ẩn câu trả lời</a>
+                                        ) : (
+                                          <a>Xem câu trả lời</a>
+                                        )}
+                                      </p>
+                                      {openReplyId === comment.comment_id &&
+                                        comment.replies.map((reply, index) => (
+                                          <div key={index}>
+                                            <p>
+                                              <div className="info-reply">
+                                                <a
+                                                  className="media-left"
+                                                  href="#/"
+                                                >
+                                                  <img
+                                                    className="img-circle img-sm"
+                                                    alt="Profile Picture"
+                                                    src="https://bootdey.com/img/Content/avatar/avatar1.png"
+                                                  />
+                                                </a>
+                                                <div>
+                                                  <a
+                                                    href="#/"
+                                                    style={{ fontSize: '20px' }}
+                                                    className="btn-link text-semibold media-heading box-inline"
+                                                  >
+                                                    {reply.user}
+                                                  </a>
+                                                  <p>{reply.text}</p>
+                                                </div>
+                                              </div>
+                                            </p>
+                                          </div>
+                                        ))}
+                                    </div>
+                                  )}
                                 <hr />
                               </div>
                             ))
@@ -252,13 +495,28 @@ const Dashboard = () => {
                     </div>
 
                     <div className="media-block pad-all">
-                      <a className="media-left" href="#/">
-                        <img
-                          className="img-circle img-sm"
-                          alt="Profile Picture"
-                          src="https://bootdey.com/img/Content/avatar/avatar1.png"
-                        />
-                      </a>
+                      <input
+                        type="text"
+                        value={comments[post.post_id] || ''}
+                        onChange={(e) =>
+                          setComments({
+                            ...comments,
+                            [post.post_id]: e.target.value,
+                          })
+                        }
+                        placeholder="Add a comment"
+                        className="form-control"
+                        style={{ marginTop: '10px' }}
+                      />
+                      <button
+                        className="btn btn-sm btn-primary pull-right"
+                        type="submit"
+                        onClick={() => handleAddComment(post.post_id)}
+                        style={{ marginTop: '10px' }}
+                      >
+                        <i className="fa fa-pencil fa-fw"></i>
+                        Submit Comment
+                      </button>
                     </div>
                   </div>
                 </div>
