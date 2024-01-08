@@ -2,10 +2,12 @@ import { BreadcrumbProps, Button, Spin } from 'antd';
 import { Link } from 'react-router-dom';
 import { webRoutes } from '../../routes/web';
 import BasePageContainer from '../layout/PageContainer';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { predict, store, getUserInfo } from '../../api/predict';
 import './index.css';
-
+import 'react-tooltip/dist/react-tooltip.css';
+import { Tooltip } from 'antd';
+import { ExclamationCircleOutlined } from '@ant-design/icons';
 const breadcrumb: BreadcrumbProps = {
   items: [
     {
@@ -21,6 +23,7 @@ const breadcrumb: BreadcrumbProps = {
 
 const Predict = () => {
   const [imageSrc, setImageSrc] = useState('');
+  const [arrow] = useState('Show');
 
   const [file, setFile] = useState<File | null>(null);
   const [result, setResult] = useState<{
@@ -136,7 +139,25 @@ const Predict = () => {
     setImageSrc('');
     setResult(null);
   };
+  const text = (
+    <span>
+      Truy cập website https://www.skincancer.org/ để tham khảo thông tin chi
+      tiết
+    </span>
+  );
+  const mergedArrow = useMemo(() => {
+    if (arrow === 'Hide') {
+      return false;
+    }
 
+    if (arrow === 'Show') {
+      return true;
+    }
+
+    return {
+      pointAtCenter: true,
+    };
+  }, [arrow]);
   return (
     <BasePageContainer breadcrumb={breadcrumb}>
       <div>
@@ -217,6 +238,13 @@ const Predict = () => {
               >
                 {result.confidence ? (
                   <>
+                    <Tooltip
+                      placement="topLeft"
+                      title={text}
+                      arrow={mergedArrow}
+                    >
+                      <ExclamationCircleOutlined />
+                    </Tooltip>
                     <hr />
                     <div
                       style={{

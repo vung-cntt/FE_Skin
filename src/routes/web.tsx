@@ -8,4 +8,5 @@ export const webRoutes = {
   getDetail: 'getDetail/:id',
   about: '/about',
   predict: '/predict',
+  help: 'https://www.skincancer.org',
 };
