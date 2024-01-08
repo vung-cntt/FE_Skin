@@ -82,23 +82,59 @@ const GetDetailPredict = () => {
         <>
           <div
             style={{
+              padding: '20px',
+              height: '400px',
+              rowGap: '8px',
+              width: '600px',
               display: 'flex',
+              flexDirection: 'column',
               justifyContent: 'space-between',
-              fontSize: '18px',
             }}
           >
-            <strong>Prediction:</strong>{' '}
-            <span>{predictionDetail.data.disease}</span>
-          </div>
-          <div
-            style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              fontSize: '18px',
-            }}
-          >
-            <strong>Confidence:</strong>{' '}
-            <span>{`${predictionDetail.data.confidence}%`}</span>
+            <hr />
+            <div className="Title">
+              <span>Overview</span>
+              <span>BIM</span>
+            </div>
+
+            <div className="info-disease">
+              <span>Prediction</span>{' '}
+              <span>{predictionDetail.data.disease}</span>
+            </div>
+            <div className="info-disease">
+              <span>Confidence</span>{' '}
+              <span>{`${predictionDetail.data.confidence}`}</span>
+            </div>
+            <div className="info-disease">
+              <span>Benign Moles</span>{' '}
+              <span>{`${predictionDetail.data.benign_moles}`}</span>
+            </div>
+            <hr />
+            <div className="Title">
+              <span>AI detail results</span>
+            </div>
+
+            <div className="info-disease">
+              <div style={{ justifyContent: 'space-between' }}>
+                {Object.entries(predictionDetail.data.predictions)
+                  .filter(([disease]) => disease !== 'Error')
+                  .map(([disease]) => (
+                    <div key={disease}>
+                      <span>{disease}</span>
+                    </div>
+                  ))}
+              </div>
+
+              <div style={{ justifyContent: 'space-between' }}>
+                {Object.entries(predictionDetail.data.predictions)
+                  .filter(([value]) => value !== 'Error')
+                  .map(([disease, value]) => (
+                    <div key={disease}>
+                      <span> {value}</span>
+                    </div>
+                  ))}
+              </div>
+            </div>
           </div>
         </>
       );
@@ -138,29 +174,20 @@ const GetDetailPredict = () => {
         {/* Prediction results */}
         <div
           style={{
-            padding: '20px', // Khoảng cách bên trong khung
-            height: '200px', // Một nửa chiều cao của khung ảnh
-            width: '400px',
+            height: '400px',
+            width: '600px',
             display: 'flex',
             marginLeft: '200px',
             flexDirection: 'column',
-            justifyContent: 'space-between', // Phân phối nội dung đều trong khung
+            justifyContent: 'space-between',
           }}
         >
-          <h3
-            style={{
-              textAlign: 'center',
-              fontWeight: 'bold',
-              fontSize: '30px',
-            }}
-          >
-            Results
-          </h3>
           <div
             style={{
               display: 'flex',
               flexDirection: 'column',
               rowGap: '10px',
+              overflowY: 'auto',
             }}
           >
             {renderPredictionContent()}
