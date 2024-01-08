@@ -1,8 +1,12 @@
 export interface Prediction {
   confidence: string;
   disease: string;
+  benign_moles: string;
+  predictions: {
+    [key: string]: string;
+  };
   id: number;
-  image: string; // or a more specific type if you know the structure
+  image: string;
   time: string;
   userId: string;
   username: string;

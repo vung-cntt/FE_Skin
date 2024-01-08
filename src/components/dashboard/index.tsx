@@ -202,7 +202,6 @@ const Dashboard = () => {
                 </div>
               </div>
               <hr />
-              {/* Thêm thông tin khác nếu cần */}
               <div className="comments-section">
                 {selectedPost.comments.map((comment, index) => (
                   <div key={index}>

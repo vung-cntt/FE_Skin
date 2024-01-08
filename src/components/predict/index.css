@@ -42,11 +42,23 @@
     outline: none; /* Xóa đường viền mặc định khi nút được nhấn hoặc tập trung */
   }
   
-  /* Thêm CSS này nếu bạn muốn nút không được phép nhấn (disabled) có một style khác */
   .button:disabled {
     background-color: #ccc;
     border-color: #ccc;
-    color: #666;
+    color: #9dc4ff;
     cursor: not-allowed;
+  }
+  .info-disease{
+    display: flex;
+    justify-content: space-between;
+    font-size:  18px;
+    color: rgb(9, 9, 80);
+  }
+  .Title{
+    display: flex;
+    justify-content: space-between;
+    font-size:  18px;
+    font-weight: bold;
+    color: #2b0742;
   }
   

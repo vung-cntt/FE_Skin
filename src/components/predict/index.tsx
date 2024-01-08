@@ -26,6 +26,10 @@ const Predict = () => {
   const [result, setResult] = useState<{
     disease: string;
     confidence: string;
+    benign_moles: string;
+    predictions: {
+      [key: string]: string;
+    };
   } | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   // const [imageUploaded, setImageUploaded] = useState<boolean>(false);
@@ -80,37 +84,39 @@ const Predict = () => {
     setLoading(true);
     try {
       if (file) {
-        // Đảm bảo rằng file là một instance của Blob
         const imageBlob = new Blob([file], { type: file.type });
 
         const formData = new FormData();
         formData.append('file', imageBlob, file.name); // Thêm Blob vào formData
 
         const predictionResult = await predict(formData); // Gửi formData đến API
+        setResult(predictionResult);
+
         if (predictionResult.disease === 'Error') {
-          // Nếu không phải ảnh ngoài da, cập nhật UI để hiển thị thông báo
           setResult({
             disease: 'Ảnh không phù hợp, vui lòng kiểm tra lại',
             confidence: '',
+            benign_moles: '',
+            predictions: {},
           });
         } else {
           setResult(predictionResult);
         }
 
-        // Chuyển đổi Blob sang định dạng Base64 hoặc sử dụng một định dạng khác nếu cần
         const reader = new FileReader();
         reader.readAsDataURL(imageBlob);
         reader.onloadend = async () => {
           const base64data = reader.result;
 
-          // Gửi dữ liệu đến API MongoDB
           const data = {
             image: base64data, // Lưu trữ ảnh dưới dạng Base64
             disease: predictionResult.disease,
             confidence: predictionResult.confidence,
+            benign_moles: predictionResult.benign_moles,
+            predictions: predictionResult.predictions,
             time: new Date().toISOString(),
             userId: userId,
-            username: username, // Thay đổi 'username' này thành tên người dùng thực tế
+            username: username,
           };
 
           const storeResponse = await store(data);
@@ -135,14 +141,20 @@ const Predict = () => {
     <BasePageContainer breadcrumb={breadcrumb}>
       <div>
         <h1>Skin Cancer Detection</h1>
-        <div style={{ display: 'flex', alignItems: 'flex-start', gap: '20px' }}>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'flex-start',
+            gap: '20px',
+            justifyContent: 'space-between',
+          }}
+        >
           <div
             style={{
               width: '600px',
               height: '400px',
               border: '1px solid black',
               display: 'flex',
-              justifyContent: 'center',
               alignItems: 'center',
               overflow: 'hidden',
               position: 'relative',
@@ -193,66 +205,68 @@ const Predict = () => {
             {result && file && (
               <div
                 style={{
-                  padding: '20px', // Khoảng cách bên trong khung
-                  height: '200px', // Một nửa chiều cao của khung ảnh
-                  width: '400px',
+                  padding: '20px',
+                  height: '400px',
+
+                  width: '600px',
                   display: 'flex',
-                  marginLeft: '200px',
+                  marginRight: '150px',
                   flexDirection: 'column',
-                  justifyContent: 'space-between', // Phân phối nội dung đều trong khung
+                  justifyContent: 'space-between',
                 }}
               >
                 {result.confidence ? (
                   <>
-                    <h3
-                      style={{
-                        textAlign: 'center',
-                        fontWeight: 'bold',
-                        fontSize: '30px',
-                      }}
-                    >
-                      Results
-                    </h3>
+                    <hr />
                     <div
                       style={{
                         display: 'flex',
                         flexDirection: 'column',
                         rowGap: '10px',
+                        overflowY: 'auto',
                       }}
                     >
-                      <div
-                        style={{
-                          display: 'flex',
-                          justifyContent: 'space-between',
-                          fontSize: '18px',
-                        }}
-                      >
-                        <strong>Prediction:</strong>{' '}
+                      <div className="Title">
+                        <span>Overview</span>
+                        <span>BIM</span>
+                      </div>
+                      <div className="info-disease">
+                        <span>Prediction:</span>
                         <span>{result.disease}</span>
                       </div>
-                      <div
-                        style={{
-                          display: 'flex',
-                          justifyContent: 'space-between',
-                          fontSize: '18px',
-                        }}
-                      >
-                        <strong>Confidence:</strong>{' '}
+                      <div className="info-disease">
+                        <span>Confidence:</span>{' '}
                         <span>{result.confidence}</span>
                       </div>
-                    </div>
-                    <div>
-                      <span
-                        style={{
-                          fontSize: '15px',
-                          color: '#ffcc00',
-                          fontFamily: 'sans-serif',
-                          fontWeight: 'bold',
-                        }}
-                      >
-                        Đây chỉ là kết quả dự đoán, hãy đến cơ sở y tế gần nhất
-                        để nhận được sự tư vấn từ chuyên gia{' '}
-                      </span>
+                      <div className="info-disease">
+                        <span>Benign Moles:</span>{' '}
+                        <span>{result.benign_moles}</span>
+                      </div>
+                      <hr />
+                      <div className="Title">
+                        <span>AI detail results</span>
+                      </div>
+                      <div className="info-disease">
+                        <div style={{ justifyContent: 'space-between' }}>
+                          {Object.entries(result.predictions)
+                            .filter(([disease]) => disease !== 'Error')
+                            .map(([disease]) => (
+                              <div key={disease}>
+                                <span>{disease}</span>
+                              </div>
+                            ))}
+                        </div>
+
+                        <div style={{ justifyContent: 'space-between' }}>
+                          {Object.entries(result.predictions)
+                            .filter(([value]) => value !== 'Error')
+                            .map(([disease, value]) => (
+                              <div key={disease}>
+                                <span> {value}</span>
+                              </div>
+                            ))}
+                        </div>
+                      </div>
                     </div>
                   </>
                 ) : (
