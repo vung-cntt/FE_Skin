@@ -141,8 +141,9 @@ const Predict = () => {
   };
   const text = (
     <span>
-      Truy cập website https://www.skincancer.org/ để tham khảo thông tin chi
-      tiết
+      Truy cập website{' '}
+      <a href="https://www.skincancer.org/">https://www.skincancer.org/</a> để
+      tham khảo thông tin chi tiết
     </span>
   );
   const mergedArrow = useMemo(() => {
@@ -243,7 +244,7 @@ const Predict = () => {
                       title={text}
                       arrow={mergedArrow}
                     >
-                      <ExclamationCircleOutlined />
+                      <ExclamationCircleOutlined /> <span>Information</span>
                     </Tooltip>
                     <hr />
                     <div

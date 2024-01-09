@@ -51,4 +51,7 @@ export default defineConfig({
   define: {
     CONFIG: CONFIG,
   },
+  server: {
+    host: true,
+  },
 });
